@@ -27,6 +27,9 @@ echo "==> [2/5] Build witness input (index=$INDEX round=$ROUND)"
   --round "$ROUND" --recipient "$RECIPIENT" --out "$BUILD/input.json"
 
 echo "==> [3/5] Calculate witness"
+# snarkjs emits CommonJS witness code, but circuits/package.json sets
+# "type":"module" — mark the generated dir as CommonJS so `require` works.
+echo '{ "type": "commonjs" }' > "$BUILD/claim_js/package.json"
 ( cd "$BUILD" && node claim_js/generate_witness.js claim_js/claim.wasm input.json witness.wtns )
 
 echo "==> [4/5] Generate Groth16 proof"

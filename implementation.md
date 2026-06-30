@@ -256,12 +256,16 @@ Each phase has a **demoable deliverable** so we always have something to submit 
   - All IDs recorded in `.stellar-deploy/testnet.env`.
 - **Deliverable:** ✅ a verified Groth16 proof on testnet. Pipeline green.
 
-### Phase 1 — ZK circuit (Day 1 afternoon → Day 2 morning)
-- [ ] Write `claim.circom` (Poseidon leaf, Merkle verify, per-round nullifier, address binding).
-- [ ] Compile, run Powers-of-Tau + phase-2 setup, export vkey.
-- [ ] Build a TS helper: generate `(secret, nullifier)`, commitment, build Poseidon Merkle tree, produce paths.
-- [ ] Generate & locally verify a real claim proof; write the BN254→Soroban encoder.
-- **Deliverable:** `node prove.js` produces a valid claim proof + public signals.
+### Phase 1 — ZK circuit (Day 1 afternoon → Day 2 morning) ✅ COMPLETE (2026-06-30)
+- [x] Write `claim.circom` (Poseidon255 leaf, LeanIMT Merkle verify, per-round nullifier, recipient binding). 5341 non-linear constraints; public signals `[nullifierHash, stateRoot, roundId, recipient]`.
+- [x] Compile (`--prime bls12381`), run Powers-of-Tau (2^14) + phase-2 setup, export vkey. → `scripts/02_circuit_setup.sh`; artifacts in `circuits/build/` (`claim_final.zkey`, `verification_key.json`, groth16/bls12381/nPublic=4).
+- [x] Build the credential/Merkle helper → **`scripts/quitrax-prepare`** (Rust, reuses `soroban-poseidon` + `lean-imt` so hashing is byte-identical to circom **and** on-chain). `gen-cohort` + `make-input` emit the circom witness.
+- [x] Generate & locally verify a real claim proof (`scripts/03_prove.sh` → `snarkJS: OK!`). Encoder reused from Phase 0 (`scripts/groth16-encoder`).
+  - **Consistency proven empirically:** the circuit's recomputed `stateRoot` == the Rust helper's published root → circom Poseidon255 ≡ Rust LeanIMT.
+  - **Bonus — real claim proof verified on-chain** on the deployed verifier: `verify_proof(claim) → true`; tampered `nullifierHash → false`.
+- **Deliverable:** ✅ `bash scripts/03_prove.sh` produces a valid claim proof + public signals (and it verifies on-chain).
+
+> **Toolchain note (Windows):** off-chain Rust helpers build with `RUSTUP_TOOLCHAIN=stable-x86_64-pc-windows-gnu`. Avoid pulling `clap`/`coinutils` into host bins — they drag in `windows-sys`, whose gnu build needs mingw `dlltool`+binutils we don't have. Inline small helpers instead. Off-chain `Env` must call `env.cost_estimate().budget().reset_unlimited()` before deep-tree hashing.
 
 ### Phase 2 — Soroban contract (Day 2)
 - [ ] Fork the verifier; add `Round`, nullifier `spent` set, `open_round`, `claim`, `close_round`, `round_stats`.
