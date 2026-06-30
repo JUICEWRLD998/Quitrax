@@ -242,12 +242,19 @@ Use the `meta-skills:modern-web-design` skill for the design system, `core-3d-an
 
 Each phase has a **demoable deliverable** so we always have something to submit even if later phases slip.
 
-### Phase 0 — Setup & de-risk (Day 1 morning)
-- [ ] Init monorepo: `circuits/`, `contracts/`, `web/`, `scripts/`, `docs/`.
-- [ ] Install Circom 2.2.1, snarkjs, Rust + `soroban-cli`, Node.
-- [ ] Clone & build `stellar/soroban-examples/groth16_verifier`; deploy it to testnet and verify the sample `a*b=c` proof end-to-end. **This proves the whole pipeline before we invest in app logic.**
-- [ ] Create testnet accounts (admin, contract); fund via friendbot; set up a USDC test asset / SAC.
-- **Deliverable:** a verified Groth16 proof on testnet. Pipeline green.
+### Phase 0 — Setup & de-risk (Day 1 morning) ✅ COMPLETE (2026-06-30)
+- [x] Init monorepo: `circuits/`, `contracts/`, `web/`, `scripts/`, `docs/`.
+- [x] Install Circom 2.2.3, snarkjs, Rust + `soroban-cli` v27, Node. *(prebuilt Windows binaries in `.localbin/`; see `docs/SETUP.md`)*
+- [x] Build `groth16_verifier` (BLS12-381); deploy to testnet and verify the sample `a*b=c` proof end-to-end. **Pipeline proven before app logic.**
+  - Unit test passes (`test::test ... ok`) — sample proof through the real Soroban-env `pairing_check`.
+  - Deployed verifier: `CDAYB2CDDQ7KRPN2F6HMQAAH7FV7EHZMFMEIVSAKLMK56CEV7OUNJHZC`.
+  - On-chain `verify_proof` → `true` for public input `33` (tx `582024a7…`), `false` for tampered `22`.
+  - Built `scripts/groth16-encoder` (snarkjs JSON → arkworks-uncompressed hex for the contract's `BytesN<96>/<192>` args) — early start on the Phase 1 encoder.
+- [x] Create testnet accounts (admin, USDC issuer); fund via friendbot; set up a USDC test asset / SAC.
+  - `quitrax-admin` (`GBXVTTT…`) funded; `quitrax-usdc-issuer` (`GA3M4CH…`) funded.
+  - USDC SAC: `CA45OELJXOYTEKUT2JUDQYYWHQHGWDGXX6JYMS7X55NOCEIHNLL7DDIU`; admin trustline established + minted 1,000,000 USDC (verified balance).
+  - All IDs recorded in `.stellar-deploy/testnet.env`.
+- **Deliverable:** ✅ a verified Groth16 proof on testnet. Pipeline green.
 
 ### Phase 1 — ZK circuit (Day 1 afternoon → Day 2 morning)
 - [ ] Write `claim.circom` (Poseidon leaf, Merkle verify, per-round nullifier, address binding).
