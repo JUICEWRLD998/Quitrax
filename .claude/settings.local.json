@@ -42,7 +42,8 @@
       "Bash(echo \"=== circom binary ===\")",
       "Bash(ls -la .localbin/circom.exe)",
       "Bash(.localbin/circom.exe --version)",
-      "Bash(wsl *)"
+      "Bash(wsl *)",
+      "Bash(xargs grep -l \"name = \\\\\"soroban-poseidon\\\\|name = \\\\\"soroban_poseidon\")"
     ]
   }
 }

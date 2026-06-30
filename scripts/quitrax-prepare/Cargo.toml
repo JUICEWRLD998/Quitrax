@@ -1,0 +1,32 @@
+[package]
+name = "quitrax-prepare"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Quitrax off-chain helper (Phase 1/3).
+#
+# Reuses the EXACT on-chain primitives so hashing is byte-for-byte consistent
+# between circom (Poseidon255), the prover, and the Soroban contract:
+#   - soroban-poseidon  -> native poseidon_hash (== circom Poseidon255)
+#   - lean-imt          -> the same Merkle tree the contract stores
+# Generates beneficiary credentials + commitments, builds the round's Merkle
+# tree, and emits the circom witness `input.json` for a chosen claimant.
+
+[[bin]]
+name = "quitrax-prepare"
+path = "src/main.rs"
+
+[dependencies]
+soroban-sdk = { version = "25.1.0", features = ["testutils"] }
+# Native Poseidon255 (== circom) + the on-chain Merkle tree. We deliberately do
+# NOT depend on coinutils/clap here: on the Windows gnu host they drag in
+# `windows-sys`, whose build needs mingw `dlltool`+binutils we don't have. The
+# small poseidon/conversion helpers are inlined instead (copied from coinutils,
+# so the hashing stays byte-for-byte identical).
+soroban-poseidon = "25.0.0"
+lean-imt = { path = "../../contracts/reference-soroban-examples/privacy-pools/libs/lean-imt" }
+rand = "0.8"
+num-bigint = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
