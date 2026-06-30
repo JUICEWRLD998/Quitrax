@@ -1,0 +1,15 @@
+{
+  "name": "quitrax-circuits",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Quitrax ZK circuits — Poseidon Merkle membership + per-round nullifier claim proof",
+  "type": "module",
+  "scripts": {
+    "snarkjs": "snarkjs"
+  },
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "snarkjs": "^0.7.5",
+    "ffjavascript": "^0.3.1"
+  }
+}

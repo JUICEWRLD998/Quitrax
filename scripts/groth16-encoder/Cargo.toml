@@ -1,0 +1,22 @@
+[package]
+name = "groth16-encoder"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Phase 0/1 helper: convert snarkjs BLS12-381 vk/proof/public JSON into the
+# arkworks-uncompressed hex that the stellar `groth16_verifier` contract's
+# BytesN<96>/BytesN<192> args expect. Mirrors g1_from_coords/g2_from_coords
+# in the verifier's src/test.rs so on-chain encoding == in-test encoding.
+
+[[bin]]
+name = "groth16-encoder"
+path = "src/main.rs"
+
+[dependencies]
+ark-bls12-381 = "0.4.0"
+ark-serialize = "0.4.2"
+ark-ff = "0.4.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"

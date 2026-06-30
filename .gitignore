@@ -1,0 +1,37 @@
+# Node
+node_modules/
+.next/
+out/
+dist/
+build/
+*.log
+npm-debug.log*
+
+# Rust / Soroban
+target/
+**/target/
+*.wasm
+.stellar/
+
+# ZK artifacts (large / generated) — keep circuit source, ignore build outputs
+circuits/build/
+*.zkey
+*.r1cs
+*.wtns
+*.ptau
+!circuits/ptau/.gitkeep
+
+# Local tooling binaries (downloaded, platform-specific)
+.localbin/
+
+# Env & secrets
+.env
+.env.local
+*.secret
+identities/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
