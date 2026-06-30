@@ -30,4 +30,21 @@ VERIFIER_ID=$(stellar contract deploy \
 echo "VERIFIER_ID=$VERIFIER_ID"
 mkdir -p .stellar-deploy
 echo "$VERIFIER_ID" > .stellar-deploy/groth16_verifier.id
-echo "✅ Phase 0 pipeline green — verifier deployed: $VERIFIER_ID"
+
+echo "==> [5/5] Encoding sample proof + verifying on-chain (end-to-end pipeline check)"
+DATA="$VERIFIER_DIR/data"
+ARGS="$DATA/soroban-args"
+( cd scripts/groth16-encoder && cargo build --release )
+scripts/groth16-encoder/target/release/groth16-encoder "$DATA" "$ARGS"
+
+RES_OK=$(stellar contract invoke --id "$VERIFIER_ID" --source "$SOURCE" --network "$NETWORK" \
+  -- verify_proof --vk "$(cat "$ARGS/vk.json")" --proof "$(cat "$ARGS/proof.json")" \
+  --pub_signals "$(cat "$ARGS/pub_signals.json")" 2>/dev/null | tail -1)
+RES_BAD=$(stellar contract invoke --id "$VERIFIER_ID" --source "$SOURCE" --network "$NETWORK" \
+  -- verify_proof --vk "$(cat "$ARGS/vk.json")" --proof "$(cat "$ARGS/proof.json")" \
+  --pub_signals '["22"]' 2>/dev/null | tail -1)
+
+echo "   verify_proof(33) = $RES_OK   (expect true)"
+echo "   verify_proof(22) = $RES_BAD  (expect false)"
+[ "$RES_OK" = "true" ] && [ "$RES_BAD" = "false" ] || { echo "❌ on-chain verification mismatch"; exit 1; }
+echo "✅ Phase 0 pipeline green — verifier deployed & proof verified on-chain: $VERIFIER_ID"
